@@ -1,0 +1,12 @@
+/* 
+  ImageViewerNewLocalizable.strings
+  ImageViewer.swift
+
+  Created by 高宇 on 2024/5/7.
+  Copyright © 2024 michaelhenry. All rights reserved.
+*/
+
+"Remove Background" = "移除背景";
+"Confirm" = "确定";
+"Reset" = "复原";
+"Close" = "关闭";

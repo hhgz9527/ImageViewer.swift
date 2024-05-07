@@ -7,9 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		6266BE762BEA1B8D00C991D4 /* ImageViewerLocalizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = 6266BE752BEA1B8D00C991D4 /* ImageViewerLocalizable.xcstrings */; };
 		6280DDD22BD622FF003B3F5A /* SDWebImage in Frameworks */ = {isa = PBXBuildFile; productRef = 6280DDD12BD622FF003B3F5A /* SDWebImage */; };
 		6280DDD42BD622FF003B3F5A /* SDWebImageMapKit in Frameworks */ = {isa = PBXBuildFile; productRef = 6280DDD32BD622FF003B3F5A /* SDWebImageMapKit */; };
+		6298A4F72BEA210000939FB4 /* ImageViewerNewLocalizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 6298A4F52BEA210000939FB4 /* ImageViewerNewLocalizable.strings */; };
 		9E5DF6DC2A095A6A0038BE08 /* UIImageView_Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E5DF6D02A095A6A0038BE08 /* UIImageView_Extensions.swift */; };
 		9E5DF6DD2A095A6A0038BE08 /* ImageLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E5DF6D12A095A6A0038BE08 /* ImageLoader.swift */; };
 		9E5DF6DE2A095A6A0038BE08 /* ImageViewer_swift.h in Headers */ = {isa = PBXBuildFile; fileRef = 9E5DF6D22A095A6A0038BE08 /* ImageViewer_swift.h */; };
@@ -27,7 +27,9 @@
 /* Begin PBXFileReference section */
 		3FBC5E7424E5908400E68938 /* ImageViewer_swift.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = ImageViewer_swift.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		3FBC5E9924E591CB00E68938 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		6266BE752BEA1B8D00C991D4 /* ImageViewerLocalizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = ImageViewerLocalizable.xcstrings; sourceTree = "<group>"; };
+		6298A4F62BEA210000939FB4 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/ImageViewerNewLocalizable.strings; sourceTree = "<group>"; };
+		6298A4F82BEA210800939FB4 /* zh-Hans */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hans"; path = "zh-Hans.lproj/ImageViewerNewLocalizable.strings"; sourceTree = "<group>"; };
+		6298A4F92BEA210B00939FB4 /* zh-Hant */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "zh-Hant"; path = "zh-Hant.lproj/ImageViewerNewLocalizable.strings"; sourceTree = "<group>"; };
 		9E5DF6D02A095A6A0038BE08 /* UIImageView_Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIImageView_Extensions.swift; sourceTree = "<group>"; };
 		9E5DF6D12A095A6A0038BE08 /* ImageLoader.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImageLoader.swift; sourceTree = "<group>"; };
 		9E5DF6D22A095A6A0038BE08 /* ImageViewer_swift.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ImageViewer_swift.h; sourceTree = "<group>"; };
@@ -103,7 +105,7 @@
 				9E5DF6D82A095A6A0038BE08 /* ImageViewerTheme.swift */,
 				9E5DF6DA2A095A6A0038BE08 /* ImageViewerController.swift */,
 				9E5DF6DB2A095A6A0038BE08 /* SimpleImageDatasource.swift */,
-				6266BE752BEA1B8D00C991D4 /* ImageViewerLocalizable.xcstrings */,
+				6298A4F52BEA210000939FB4 /* ImageViewerNewLocalizable.strings */,
 			);
 			path = ImageViewer_swift;
 			sourceTree = "<group>";
@@ -164,9 +166,9 @@
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
-				Base,
 				"zh-Hans",
 				"zh-Hant",
+				Base,
 			);
 			mainGroup = 3FBC5E6A24E5908400E68938;
 			packageReferences = (
@@ -186,7 +188,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				6266BE762BEA1B8D00C991D4 /* ImageViewerLocalizable.xcstrings in Resources */,
+				6298A4F72BEA210000939FB4 /* ImageViewerNewLocalizable.strings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -212,6 +214,19 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXVariantGroup section */
+		6298A4F52BEA210000939FB4 /* ImageViewerNewLocalizable.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				6298A4F62BEA210000939FB4 /* en */,
+				6298A4F82BEA210800939FB4 /* zh-Hans */,
+				6298A4F92BEA210B00939FB4 /* zh-Hant */,
+			);
+			name = ImageViewerNewLocalizable.strings;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
 		3FBC5E7A24E5908400E68938 /* Debug */ = {

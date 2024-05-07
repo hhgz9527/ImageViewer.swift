@@ -216,7 +216,8 @@ UIGestureRecognizerDelegate {
         filled.image = UIImage(systemName: "wand.and.rays.inverse")
         filled.image?.withTintColor(.white)
         filled.imagePadding = 5
-        filled.title = String(localized: "Remove Background", table: "ImageViewerLocalizable")
+        filled.title = NSLocalizedString("Remove Background", comment: "Close button title")
+        
         removeBackgroundButton = UIButton(configuration: filled, primaryAction: nil)
         removeBackgroundButton.titleLabel?.font = .systemFont(ofSize: 14)
         removeBackgroundButton.titleLabel?.textColor = .white
