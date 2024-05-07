@@ -3,6 +3,8 @@ import UIKit
 public protocol ImageDataSource: AnyObject {
     func numberOfImages() -> Int
     func imageItem(at index:Int) -> ImageItem
+    
+    func liftSubject(img: UIImage?, index: Int)
 }
 
 public class ImageCarouselViewController:UIPageViewController, ImageViewerTransitionViewControllerConvertible {
@@ -101,7 +103,7 @@ public class ImageCarouselViewController:UIPageViewController, ImageViewerTransi
     private func addNavBar() {
         // Add Navigation Bar
         let closeBarButton = UIBarButtonItem(
-            title: NSLocalizedString("Close", comment: "Close button title"),
+            title: String(localized: "Close", table: "ImageViewerLocalizable"),
             style: .plain,
             target: self,
             action: #selector(dismiss(_:)))
@@ -161,7 +163,9 @@ public class ImageCarouselViewController:UIPageViewController, ImageViewerTransi
             let initialVC:ImageViewerController = .init(
                 index: initialIndex,
                 imageItem: imageDatasource.imageItem(at: initialIndex),
-                imageLoader: imageLoader)
+                imageLoader: imageLoader) { [weak self] img in
+                    imageDatasource.liftSubject(img: img, index: self?.initialIndex ?? 0)
+                }
             setViewControllers([initialVC], direction: .forward, animated: true)
         }
     }
@@ -204,7 +208,9 @@ extension ImageCarouselViewController:UIPageViewControllerDataSource {
         return ImageViewerController.init(
             index: newIndex,
             imageItem:  imageDatasource.imageItem(at: newIndex),
-            imageLoader: vc.imageLoader)
+            imageLoader: vc.imageLoader) { img in
+                imageDatasource.liftSubject(img: img, index: newIndex)
+            }
     }
     
     public func pageViewController(
@@ -219,6 +225,8 @@ extension ImageCarouselViewController:UIPageViewControllerDataSource {
         return ImageViewerController.init(
             index: newIndex,
             imageItem: imageDatasource.imageItem(at: newIndex),
-            imageLoader: vc.imageLoader)
+            imageLoader: vc.imageLoader) { img in
+                imageDatasource.liftSubject(img: img, index: newIndex)
+            }
     }
 }

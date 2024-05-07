@@ -3,11 +3,13 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 52;
+	objectVersion = 54;
 	objects = {
 
 /* Begin PBXBuildFile section */
-		032D118F259412CA0001404D /* SDWebImage.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = 032D118E259412CA0001404D /* SDWebImage.xcframework */; };
+		6266BE762BEA1B8D00C991D4 /* ImageViewerLocalizable.xcstrings in Resources */ = {isa = PBXBuildFile; fileRef = 6266BE752BEA1B8D00C991D4 /* ImageViewerLocalizable.xcstrings */; };
+		6280DDD22BD622FF003B3F5A /* SDWebImage in Frameworks */ = {isa = PBXBuildFile; productRef = 6280DDD12BD622FF003B3F5A /* SDWebImage */; };
+		6280DDD42BD622FF003B3F5A /* SDWebImageMapKit in Frameworks */ = {isa = PBXBuildFile; productRef = 6280DDD32BD622FF003B3F5A /* SDWebImageMapKit */; };
 		9E5DF6DC2A095A6A0038BE08 /* UIImageView_Extensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E5DF6D02A095A6A0038BE08 /* UIImageView_Extensions.swift */; };
 		9E5DF6DD2A095A6A0038BE08 /* ImageLoader.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E5DF6D12A095A6A0038BE08 /* ImageLoader.swift */; };
 		9E5DF6DE2A095A6A0038BE08 /* ImageViewer_swift.h in Headers */ = {isa = PBXBuildFile; fileRef = 9E5DF6D22A095A6A0038BE08 /* ImageViewer_swift.h */; };
@@ -23,9 +25,9 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		032D118E259412CA0001404D /* SDWebImage.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = SDWebImage.xcframework; path = Carthage/Build/SDWebImage.xcframework; sourceTree = SOURCE_ROOT; };
 		3FBC5E7424E5908400E68938 /* ImageViewer_swift.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = ImageViewer_swift.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		3FBC5E9924E591CB00E68938 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		6266BE752BEA1B8D00C991D4 /* ImageViewerLocalizable.xcstrings */ = {isa = PBXFileReference; lastKnownFileType = text.json.xcstrings; path = ImageViewerLocalizable.xcstrings; sourceTree = "<group>"; };
 		9E5DF6D02A095A6A0038BE08 /* UIImageView_Extensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UIImageView_Extensions.swift; sourceTree = "<group>"; };
 		9E5DF6D12A095A6A0038BE08 /* ImageLoader.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImageLoader.swift; sourceTree = "<group>"; };
 		9E5DF6D22A095A6A0038BE08 /* ImageViewer_swift.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ImageViewer_swift.h; sourceTree = "<group>"; };
@@ -45,7 +47,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				032D118F259412CA0001404D /* SDWebImage.xcframework in Frameworks */,
+				6280DDD22BD622FF003B3F5A /* SDWebImage in Frameworks */,
+				6280DDD42BD622FF003B3F5A /* SDWebImageMapKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -57,7 +60,6 @@
 			children = (
 				3FBC5E7F24E5910E00E68938 /* Sources */,
 				3FBC5E9824E591CB00E68938 /* Config */,
-				3FBC5E9B24E5959C00E68938 /* Frameworks */,
 				3FBC5E7524E5908400E68938 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -86,14 +88,6 @@
 			path = Config;
 			sourceTree = "<group>";
 		};
-		3FBC5E9B24E5959C00E68938 /* Frameworks */ = {
-			isa = PBXGroup;
-			children = (
-				032D118E259412CA0001404D /* SDWebImage.xcframework */,
-			);
-			path = Frameworks;
-			sourceTree = "<group>";
-		};
 		9E5DF6CF2A095A6A0038BE08 /* ImageViewer_swift */ = {
 			isa = PBXGroup;
 			children = (
@@ -109,6 +103,7 @@
 				9E5DF6D82A095A6A0038BE08 /* ImageViewerTheme.swift */,
 				9E5DF6DA2A095A6A0038BE08 /* ImageViewerController.swift */,
 				9E5DF6DB2A095A6A0038BE08 /* SimpleImageDatasource.swift */,
+				6266BE752BEA1B8D00C991D4 /* ImageViewerLocalizable.xcstrings */,
 			);
 			path = ImageViewer_swift;
 			sourceTree = "<group>";
@@ -141,6 +136,10 @@
 			dependencies = (
 			);
 			name = ImageViewer.swift;
+			packageProductDependencies = (
+				6280DDD12BD622FF003B3F5A /* SDWebImage */,
+				6280DDD32BD622FF003B3F5A /* SDWebImageMapKit */,
+			);
 			productName = ImageViewer.swift;
 			productReference = 3FBC5E7424E5908400E68938 /* ImageViewer_swift.framework */;
 			productType = "com.apple.product-type.framework";
@@ -166,8 +165,13 @@
 			knownRegions = (
 				en,
 				Base,
+				"zh-Hans",
+				"zh-Hant",
 			);
 			mainGroup = 3FBC5E6A24E5908400E68938;
+			packageReferences = (
+				6280DDD02BD622FF003B3F5A /* XCRemoteSwiftPackageReference "SDWebImage" */,
+			);
 			productRefGroup = 3FBC5E7524E5908400E68938 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -182,6 +186,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6266BE762BEA1B8D00C991D4 /* ImageViewerLocalizable.xcstrings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -343,7 +348,7 @@
 				);
 				INFOPLIST_FILE = "$(SRCROOT)/Config/Info.plist";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -372,7 +377,7 @@
 				);
 				INFOPLIST_FILE = "$(SRCROOT)/Config/Info.plist";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
-				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -409,6 +414,30 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		6280DDD02BD622FF003B3F5A /* XCRemoteSwiftPackageReference "SDWebImage" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/SDWebImage/SDWebImage";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.19.1;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		6280DDD12BD622FF003B3F5A /* SDWebImage */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 6280DDD02BD622FF003B3F5A /* XCRemoteSwiftPackageReference "SDWebImage" */;
+			productName = SDWebImage;
+		};
+		6280DDD32BD622FF003B3F5A /* SDWebImageMapKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 6280DDD02BD622FF003B3F5A /* XCRemoteSwiftPackageReference "SDWebImage" */;
+			productName = SDWebImageMapKit;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 3FBC5E6B24E5908400E68938 /* Project object */;
 }

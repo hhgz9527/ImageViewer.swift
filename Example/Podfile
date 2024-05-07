@@ -4,4 +4,5 @@ use_frameworks!
 target 'Demo' do
   pod 'ImageViewer.swift', :path => './../'
   pod 'ImageViewer.swift/Fetcher', :path => './../'
+  pod 'SDWebImage'
 end

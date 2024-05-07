@@ -66,6 +66,24 @@ extension UIImageView {
             from: from,
             imageLoader: imageLoader)
     }
+    
+    public func setupImageViewer(
+        items:[ImageItem],
+        initialIndex:Int = 0,
+        options:[ImageViewerOption] = [],
+        from:UIViewController? = nil,
+        imageLoader:ImageLoader? = nil,
+        liftSubjectAction: @escaping ((UIImage?, Int) -> Void)) {
+            let datasource = YGSimpleImageDataSource(imageItems: items) { img, index in
+                liftSubjectAction(img, index)
+            }
+            setup(
+                datasource: datasource,
+                initialIndex: initialIndex,
+                options: options,
+                from: from,
+                imageLoader: imageLoader)
+    }
 
     public func setupImageViewer(
         urls:[URL],
@@ -128,7 +146,7 @@ extension UIImageView {
                 break
             }
         }
-        contentMode = imageContentMode
+//        contentMode = imageContentMode
         
         clipsToBounds = true
         

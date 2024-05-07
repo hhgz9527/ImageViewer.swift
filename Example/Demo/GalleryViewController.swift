@@ -1,8 +1,7 @@
 import UIKit
 import ImageViewer_swift
 
-class WithImagesViewController:UIViewController {
-
+class WithImagesViewController:UIViewController, ImageDataSource {
     var images:[UIImage] = Data.images
     
     lazy var layout = GalleryFlowLayout()
@@ -83,12 +82,20 @@ extension WithImagesViewController:UICollectionViewDataSource {
             .dequeueReusableCell(withReuseIdentifier: ThumbCell.reuseIdentifier,
                                  for: indexPath) as! ThumbCell
         cell.imageView.image = images[indexPath.item]
-        
+            cell.imageView.setupImageViewer(datasource: self)
         // Setup Image Viewer with [UIImage]
-        cell.imageView.setupImageViewer(
-            images: images,
-            initialIndex: indexPath.item)
+//        cell.imageView.setupImageViewer(
+//            images: images,
+//            initialIndex: indexPath.item)
         
         return cell
+    }
+    
+    func numberOfImages() -> Int {
+        return 1
+    }
+    
+    func imageItem(at index: Int) -> ImageViewer_swift.ImageItem {
+        return .image(images[index])
     }
 }
