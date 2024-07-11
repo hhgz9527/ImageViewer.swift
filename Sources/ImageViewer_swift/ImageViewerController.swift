@@ -8,6 +8,13 @@ UIGestureRecognizerDelegate {
     var imageView: UIImageView = UIImageView(frame: .zero)
     var livePhotoView: PHLivePhotoView = PHLivePhotoView(frame: CGRect(x: 0, y: 0, width: 320, height: 320))
     let livePhotoFlag = UIImageView(image: UIImage(systemName: "livephoto"))
+    
+    var videoPlayerLayer = AVPlayerLayer()
+    var videoPlayerButton: UIButton = UIButton()
+    var videoPrgressBackground: UIView = UIView()
+    var videoPrgressLabel: UILabel = UILabel()
+    var videoPasueButton: UIButton?
+    
     var downloadButton: UIButton = UIButton()
     var removeBackgroundButton: UIButton = UIButton()
     var resetImageButton: UIButton = UIButton()
@@ -15,7 +22,7 @@ UIGestureRecognizerDelegate {
     let imageLoader: ImageLoader
     
     private var _interaction: Any? = nil
-    @available(iOS 16.0, *)
+    @available(iOS 17.0, *)
     fileprivate var interaction: ImageAnalysisInteraction {
         if _interaction == nil {
             _interaction = ImageAnalysisInteraction()
@@ -53,16 +60,20 @@ UIGestureRecognizerDelegate {
     
     private var liftSubjectImageAction: ((UIImage?) -> Void)?
     
+    private var i18nDic: [String: String]?
+    
     init(
         index: Int,
         imageItem:ImageItem,
         imageLoader: ImageLoader,
+        i18nDic: [String: String]? = nil,
         liftSubjectImageAction: ((UIImage?) -> Void)? = nil) {
 
         self.index = index
         self.imageItem = imageItem
         self.imageLoader = imageLoader
         self.liftSubjectImageAction = liftSubjectImageAction
+        self.i18nDic = i18nDic
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -111,6 +122,16 @@ UIGestureRecognizerDelegate {
             livePhotoFlag.isHidden = true
             scrollView.addSubview(livePhotoView)
             scrollView.addSubview(livePhotoFlag)
+        case .video(imageFileURL: _, videoFileURL: let videoURL):
+            if let videoURL {
+                let player = AVPlayer(url: videoURL)
+                videoPlayerLayer = AVPlayerLayer(player: player)
+                videoPlayerLayer.frame = view.bounds
+                videoPlayerLayer.videoGravity = .resizeAspect
+                // 添加 playerLayer 到 viewController 的 view 层级
+                scrollView.layer.addSublayer(videoPlayerLayer)
+            }
+            break
         case .none:
             break
         }
@@ -147,29 +168,59 @@ UIGestureRecognizerDelegate {
             let longPressGesture = UILongPressGestureRecognizer(target: self, action: #selector(handleLongPress(_:)))
             longPressGesture.minimumPressDuration = 0.2
             scrollView.addGestureRecognizer(longPressGesture)
-        default:
+        case .video(imageFileURL: let image, videoFileURL: let video):
+            imageView.image = UIImage(contentsOfFile: image!.relativePath)
+            imageView.layoutIfNeeded()
+            
+            buildVideoPlayerButton()
+            buildVideoProgressLabel()
+
+            if let video {
+                let playerItem = AVPlayerItem(url: video)
+                let aplayer = AVPlayer(playerItem: playerItem)
+                playerItem.addObserver(self, forKeyPath: "status", options: [.initial, .new], context: nil)
+            }
+            
+            NotificationCenter.default.addObserver(forName: .AVPlayerItemDidPlayToEndTime, object: videoPlayerLayer.player?.currentItem, queue: .main) { [weak self] _ in
+                // 播放结束时执行的代码
+                self?.videoPlayerButton.isHidden = false  // 可选：移除 playerLayer
+                self?.videoPrgressBackground.isHidden = false
+                self?.videoPrgressLabel.isHidden = false
+                // 执行你需要的操作
+                self?.videoPlayerLayer.player?.seek(to: .zero)
+            }
+        case .none:
             break
         }
-        if #available(iOS 16.0, *), ImageAnalyzer.isSupported {
+        addGestureRecognizers()
+        buildDownloadButton()
+        addLiftSubjectInteraction()
+    }
+    
+    private func addLiftSubjectInteraction() {
+        if #available(iOS 17.0, *), ImageAnalyzer.isSupported {
             imageView.addInteraction(interaction)
             interaction.preferredInteractionTypes = .automatic
             Task {
                 let configuration = ImageAnalyzer.Configuration([.visualLookUp])
                 
                 let analyzer = ImageAnalyzer()
-                
-                let analysis = try? await analyzer.analyze(imageView.image!, configuration: configuration)
-                interaction.analysis = analysis
-                
-                let subjects = await interaction.subjects
-                if !subjects.isEmpty {
-                    buildRemoveBackgroundButton()
+                if let img = imageView.image {
+                    do {
+                        let analysis = try await analyzer.analyze(img, configuration: configuration)
+                        interaction.analysis = analysis
+                        
+                        let subjects = await interaction.subjects
+                        if !subjects.isEmpty {
+                            buildRemoveBackgroundButton()
+                        }
+                    } catch {
+                        print(error)
+                    }
                 }
+                
             }
         }
-        addGestureRecognizers()
-        buildDownloadButton()
-        
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -186,6 +237,140 @@ UIGestureRecognizerDelegate {
         super.viewWillLayoutSubviews()
         layout()
     }
+    
+    
+    // MARK: Video
+    
+    private func buildVideoPlayerButton() {
+        guard let imageItem else { return }
+        switch imageItem {
+        case .image(_):
+            videoPlayerButton.isHidden = true
+        case .url(_, _):
+            videoPlayerButton.isHidden = true
+        case .livePhotoByResourceFileURLs(_, _):
+            videoPlayerButton.isHidden = true
+        case .video(_, _):
+            videoPlayerButton.isHidden = false
+            videoPlayerButton = UIButton(type: .custom)
+//            videoPlayerButton.titleLabel?.font = .systemFont(ofSize: 14)
+            videoPlayerButton.titleLabel?.textColor = .white
+            videoPlayerButton.layer.cornerRadius = 50 / 2
+            videoPlayerButton.translatesAutoresizingMaskIntoConstraints = false
+            videoPlayerButton.setImage(UIImage(systemName: "play.circle.fill"), for: .normal)
+            videoPlayerButton.tintColor = .white
+            videoPlayerButton.backgroundColor = .black.withAlphaComponent(0.3)
+            view.addSubview(videoPlayerButton)
+            videoPlayerButton.layer.zPosition = 9999
+            videoPlayerButton.heightAnchor.constraint(equalToConstant: 50).isActive = true
+            videoPlayerButton.widthAnchor.constraint(equalToConstant: 50).isActive = true
+            videoPlayerButton.centerXAnchor.constraint(equalTo: view.centerXAnchor, constant: 0).isActive = true
+            videoPlayerButton.centerYAnchor.constraint(equalTo: view.centerYAnchor, constant: 0).isActive = true
+            videoPlayerButton.addTarget(self, action: #selector(playVideoAction), for: .touchUpInside)
+        }
+    }
+    
+    private func buildVideoProgressLabel() {
+        let gradientView = GradientView(frame: .zero)
+        gradientView.translatesAutoresizingMaskIntoConstraints = false
+        gradientView.layer.zPosition = 9998
+        view.addSubview(gradientView)
+        gradientView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 0).isActive = true
+        gradientView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: 0).isActive = true
+        gradientView.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: 0).isActive = true
+        gradientView.heightAnchor.constraint(equalToConstant: 140).isActive = true
+        videoPrgressBackground = gradientView
+        
+        // 添加播放进度观察者
+        videoPrgressLabel = UILabel()
+        videoPrgressLabel.text = "--:--"
+        videoPrgressLabel.textColor = .white
+        videoPrgressLabel.translatesAutoresizingMaskIntoConstraints = false
+        videoPrgressLabel.layer.zPosition = 9999
+        self.view.addSubview(videoPrgressLabel)
+        
+        videoPrgressLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20).isActive = true
+        videoPrgressLabel.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: -30).isActive = true
+        
+        if let player = videoPlayerLayer.player {
+            let timeInterval = CMTime(seconds: 1, preferredTimescale: 1) // 每秒更新一次
+            player.addPeriodicTimeObserver(forInterval: timeInterval, queue: .main) { [weak self] time in
+                let currentTime = CMTimeGetSeconds(time)
+                let duration = CMTimeGetSeconds(player.currentItem?.duration ?? CMTime.zero)
+                let progress = currentTime / duration
+                // 在这里更新进度条或其他 UI 元素
+                let a = Int(duration.rounded() - currentTime.rounded())
+                self?.videoPrgressLabel.text = self?.stringFromTimeInterval(time: a)
+            }
+        }
+    }
+    
+    private func stringFromTimeInterval(time: Int) -> String {
+        let interval = time
+        let seconds = interval % 60
+        let minutes = (interval / 60) % 60
+        let hours = (interval / 3600)
+        
+        
+        let dateFormat = DateComponentsFormatter()
+        dateFormat.allowedUnits = [.hour, .minute, .second]
+        dateFormat.zeroFormattingBehavior = .pad
+        if hours == 0 {
+            return dateFormat.string(for: interval) ?? String(format: "%02d:%02d", minutes, seconds)
+        } else {
+            return dateFormat.string(for: interval) ?? String(format: "%02d:%02d:%02d", hours, minutes, seconds)
+        }
+    }
+    
+    @objc func playVideoAction() {
+        videoPrgressBackground.isHidden = true
+        videoPrgressLabel.isHidden = true
+        videoPlayerButton.isHidden = true
+        videoPlayerLayer.player?.play()
+        
+        videoPasueButton = UIButton(type: .custom)
+        guard let videoPasueButton else { return }
+        videoPasueButton.translatesAutoresizingMaskIntoConstraints = false
+        videoPasueButton.addTarget(self, action: #selector(pauseVideoAction), for: .touchUpInside)
+        view.addSubview(videoPasueButton)
+        
+        videoPasueButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: 0).isActive = true
+        videoPasueButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 0).isActive = true
+        videoPasueButton.topAnchor.constraint(equalTo: view.topAnchor, constant: 0).isActive = true
+        videoPasueButton.bottomAnchor.constraint(equalTo: view.bottomAnchor, constant: 0).isActive = true
+    }
+    
+    @objc func pauseVideoAction() {
+        videoPlayerLayer.player?.pause()
+        videoPasueButton?.removeFromSuperview()
+        videoPasueButton = nil
+        
+        videoPrgressBackground.isHidden = false
+        videoPrgressLabel.isHidden = false
+        videoPlayerButton.isHidden = false
+
+    }
+    
+    override func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
+        if keyPath == "status" {
+            if let playerItem = object as? AVPlayerItem {
+                if playerItem.status == .readyToPlay {
+                    // 获取视频时长
+                    let duration = playerItem.duration
+                    let seconds = CMTimeGetSeconds(duration)
+                    
+                    videoPrgressLabel.text = stringFromTimeInterval(time: Int(seconds.rounded()))
+                    // 移除观察者
+                    playerItem.removeObserver(self, forKeyPath: "status")
+                } else if playerItem.status == .failed {
+                    // 处理错误
+                }
+            }
+        }
+    }
+
+    
+    // MARK: Option
     
     private func buildDownloadButton() {
         var filled = UIButton.Configuration.plain()
@@ -216,8 +401,7 @@ UIGestureRecognizerDelegate {
         filled.image = UIImage(systemName: "wand.and.rays.inverse")
         filled.image?.withTintColor(.white)
         filled.imagePadding = 5
-        filled.title = NSLocalizedString("Remove Background", comment: "Close button title")
-        
+        filled.title = i18nDic?["removeBackground"] ?? "移除背景"
         removeBackgroundButton = UIButton(configuration: filled, primaryAction: nil)
         removeBackgroundButton.titleLabel?.font = .systemFont(ofSize: 14)
         removeBackgroundButton.titleLabel?.textColor = .white
@@ -240,7 +424,7 @@ UIGestureRecognizerDelegate {
         filled.image = UIImage(systemName: "arrow.counterclockwise")
         filled.image?.withTintColor(.white)
         filled.imagePadding = 5
-        filled.title = String(localized: "Reset", table: "ImageViewerLocalizable")
+        filled.title = i18nDic?["restore"] ?? "撤回"//String(localized: "Reset", table: "ImageViewerLocalizable")
         
         resetImageButton = UIButton(configuration: filled, primaryAction: nil)
         resetImageButton.titleLabel?.font = .systemFont(ofSize: 14)
@@ -263,7 +447,7 @@ UIGestureRecognizerDelegate {
         filled.image = UIImage(systemName: "checkmark")
         filled.image?.withTintColor(.white)
         filled.imagePadding = 5
-        filled.title = String(localized: "Confirm", table: "ImageViewerLocalizable")
+        filled.title = i18nDic?["confirm"] ?? "确定"//String(localized: "Confirm", table: "ImageViewerLocalizable")
         
         saveSubjectImageButton = UIButton(configuration: filled, primaryAction: nil)
         saveSubjectImageButton.titleLabel?.font = .systemFont(ofSize: 14)
@@ -281,7 +465,7 @@ UIGestureRecognizerDelegate {
     }
     
     @objc func saveLiftSubjectImage() {
-        if #available(iOS 16.0, *), ImageAnalyzer.isSupported {
+        if #available(iOS 17.0, *), ImageAnalyzer.isSupported {
             Task {
                 let subjects = await interaction.subjects
                 do {
@@ -340,7 +524,7 @@ UIGestureRecognizerDelegate {
     @objc func liftSubjectsFromImage() {
         switch imageItem {
         case .image(_):
-            if #available(iOS 16.0, *), ImageAnalyzer.isSupported {
+            if #available(iOS 17.0, *), ImageAnalyzer.isSupported {
                 Task {
                     let subjects = await interaction.subjects
                     do {
@@ -363,7 +547,7 @@ UIGestureRecognizerDelegate {
         case .url(_, _):
             break
         case .livePhotoByResourceFileURLs(_, _):
-            if #available(iOS 16.0, *), ImageAnalyzer.isSupported {
+            if #available(iOS 17.0, *), ImageAnalyzer.isSupported {
                 Task {
                     let subjects = await interaction.subjects
                     do {
@@ -384,6 +568,8 @@ UIGestureRecognizerDelegate {
                     
                 }
             }
+        case .video(imageFileURL: _, videoFileURL: _):
+            break
         case .none:
             break
         }
@@ -391,6 +577,16 @@ UIGestureRecognizerDelegate {
     
     @objc func saveImageToPhoto() {
         switch imageItem {
+        case .video(imageFileURL: _, videoFileURL: let videoURL):
+            if let videoURL {
+                PHPhotoLibrary.shared().performChanges({
+                    PHAssetChangeRequest.creationRequestForAssetFromVideo(atFileURL: videoURL)
+                }) { [weak self] success, error in
+                    if success {
+                        self?.changeButtonImageWhenSaveSuccess()
+                    }
+                }
+            }
         case .image(let uIImage):
             if let uIImage {
                 UIImageWriteToSavedPhotosAlbum(uIImage, self, #selector(saveImageCompletion(image:didFinishSavingWithError:contextInfo:)), nil)
@@ -633,6 +829,8 @@ extension ImageViewerController {
             break
         case .url(_, _):
             break
+        case .video(imageFileURL: _, videoFileURL: _):
+            videoPlayerLayer.frame = imageView.frame
         case .livePhotoByResourceFileURLs(_, _):
             livePhotoView.frame = imageView.frame
             livePhotoFlag.frame = CGRect(x: imageView.frame.minX + 10, y: imageView.frame.minY + 10, width: 15, height: 15)
@@ -672,3 +870,32 @@ extension ImageViewerController:UIScrollViewDelegate {
     }
 }
 
+
+class GradientView: UIView {
+    
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        setupGradientLayer()
+    }
+    
+    required init?(coder: NSCoder) {
+        super.init(coder: coder)
+        setupGradientLayer()
+    }
+    
+    private func setupGradientLayer() {
+        let gradientLayer = CAGradientLayer()
+        gradientLayer.frame = self.bounds
+        gradientLayer.colors = [UIColor.white.cgColor, UIColor.black.withAlphaComponent(0.1).cgColor]
+        gradientLayer.startPoint = CGPoint(x: 0, y: 0)
+        gradientLayer.endPoint = CGPoint(x: 0, y: 1)
+        self.layer.insertSublayer(gradientLayer, at: 0)
+    }
+    
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        if let gradientLayer = self.layer.sublayers?.first as? CAGradientLayer {
+            gradientLayer.frame = self.bounds
+        }
+    }
+}

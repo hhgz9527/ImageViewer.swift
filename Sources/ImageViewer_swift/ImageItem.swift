@@ -5,4 +5,5 @@ public enum ImageItem {
     case image(UIImage?)
     case url(URL, placeholder: UIImage?)
     case livePhotoByResourceFileURLs(imageFileURL: URL?, videoFileURL: URL?)
+    case video(imageFileURL: URL?, videoFileURL: URL?)
 }

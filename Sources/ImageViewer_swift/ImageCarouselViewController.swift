@@ -60,6 +60,8 @@ public class ImageCarouselViewController:UIPageViewController, ImageViewerTransi
     
     private let imageViewerPresentationDelegate: ImageViewerTransitionPresentationManager
     
+    private var i18nDic: [String: String] = [:]
+    
     public init(
         sourceView:UIImageView,
         imageDataSource: ImageDataSource?,
@@ -103,7 +105,7 @@ public class ImageCarouselViewController:UIPageViewController, ImageViewerTransi
     private func addNavBar() {
         // Add Navigation Bar
         let closeBarButton = UIBarButtonItem(
-            title: String(localized: "Close", table: "ImageViewerLocalizable"),
+            title: i18nDic["close"] ?? String(localized: "Close", table: "ImageViewerLocalizable"),
             style: .plain,
             target: self,
             action: #selector(dismiss(_:)))
@@ -146,6 +148,8 @@ public class ImageCarouselViewController:UIPageViewController, ImageViewerTransi
                         target: self,
                         action: #selector(diTapRightNavBarItem(_:)))
                     onRightNavBarTapped = onTap
+                case .i18n(let dic):
+                    i18nDic = dic
             }
         }
     }
@@ -154,8 +158,9 @@ public class ImageCarouselViewController:UIPageViewController, ImageViewerTransi
         super.viewDidLoad()
         
         addBackgroundView()
-        addNavBar()
         applyOptions()
+        addNavBar()
+        
         
         dataSource = self
 
@@ -163,7 +168,8 @@ public class ImageCarouselViewController:UIPageViewController, ImageViewerTransi
             let initialVC:ImageViewerController = .init(
                 index: initialIndex,
                 imageItem: imageDatasource.imageItem(at: initialIndex),
-                imageLoader: imageLoader) { [weak self] img in
+                imageLoader: imageLoader,
+                i18nDic: i18nDic) { [weak self] img in
                     imageDatasource.liftSubject(img: img, index: self?.initialIndex ?? 0)
                 }
             setViewControllers([initialVC], direction: .forward, animated: true)
@@ -208,7 +214,8 @@ extension ImageCarouselViewController:UIPageViewControllerDataSource {
         return ImageViewerController.init(
             index: newIndex,
             imageItem:  imageDatasource.imageItem(at: newIndex),
-            imageLoader: vc.imageLoader) { img in
+            imageLoader: vc.imageLoader,
+            i18nDic: i18nDic) { img in
                 imageDatasource.liftSubject(img: img, index: newIndex)
             }
     }
@@ -225,7 +232,8 @@ extension ImageCarouselViewController:UIPageViewControllerDataSource {
         return ImageViewerController.init(
             index: newIndex,
             imageItem: imageDatasource.imageItem(at: newIndex),
-            imageLoader: vc.imageLoader) { img in
+            imageLoader: vc.imageLoader,
+            i18nDic: i18nDic) { img in
                 imageDatasource.liftSubject(img: img, index: newIndex)
             }
     }
