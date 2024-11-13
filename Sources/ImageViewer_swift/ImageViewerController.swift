@@ -144,12 +144,14 @@ UIGestureRecognizerDelegate {
         case .image(let img):
             imageView.image = img
             imageView.layoutIfNeeded()
+            addLiftSubjectInteraction()
         case .url(let url, let placeholder):
             imageLoader.loadImage(url, placeholder: placeholder, imageView: imageView) { (image) in
                 DispatchQueue.main.async {[weak self] in
                     self?.layout()
                 }
             }
+            addLiftSubjectInteraction()
         case .livePhotoByResourceFileURLs(imageFileURL: let image, videoFileURL: let video):
             imageView.image = UIImage(contentsOfFile: image!.relativePath)
             imageView.layoutIfNeeded()
@@ -168,6 +170,7 @@ UIGestureRecognizerDelegate {
             let longPressGesture = UILongPressGestureRecognizer(target: self, action: #selector(handleLongPress(_:)))
             longPressGesture.minimumPressDuration = 0.2
             scrollView.addGestureRecognizer(longPressGesture)
+            addLiftSubjectInteraction()
         case .video(imageFileURL: let image, videoFileURL: let video):
             imageView.image = UIImage(contentsOfFile: image!.relativePath)
             imageView.layoutIfNeeded()
@@ -194,7 +197,6 @@ UIGestureRecognizerDelegate {
         }
         addGestureRecognizers()
         buildDownloadButton()
-        addLiftSubjectInteraction()
     }
     
     private func addLiftSubjectInteraction() {
@@ -299,8 +301,10 @@ UIGestureRecognizerDelegate {
                 let duration = CMTimeGetSeconds(player.currentItem?.duration ?? CMTime.zero)
                 let progress = currentTime / duration
                 // 在这里更新进度条或其他 UI 元素
-                let a = Int(duration.rounded() - currentTime.rounded())
-                self?.videoPrgressLabel.text = self?.stringFromTimeInterval(time: a)
+                if !duration.isNaN {
+                    let a = Int(duration.rounded() - currentTime.rounded())
+                    self?.videoPrgressLabel.text = self?.stringFromTimeInterval(time: a)
+                }
             }
         }
     }
@@ -416,6 +420,18 @@ UIGestureRecognizerDelegate {
 //        removeBackgroundButton.widthAnchor.constraint(equalToConstant: 34).isActive = true
         removeBackgroundButton.heightAnchor.constraint(equalToConstant: 34).isActive = true
         removeBackgroundButton.addTarget(self, action: #selector(liftSubjectsFromImage), for: .touchUpInside)
+        
+        guard let imageItem else { return }
+        switch imageItem {
+        case .image(_):
+            removeBackgroundButton.isHidden = false
+        case .url(_, _):
+            removeBackgroundButton.isHidden = false
+        case .livePhotoByResourceFileURLs(_, _):
+            removeBackgroundButton.isHidden = false
+        case .video(_, _):
+            removeBackgroundButton.isHidden = true
+        }
     }
     
     private func buildResetButton() {
@@ -886,7 +902,7 @@ class GradientView: UIView {
     private func setupGradientLayer() {
         let gradientLayer = CAGradientLayer()
         gradientLayer.frame = self.bounds
-        gradientLayer.colors = [UIColor.white.cgColor, UIColor.black.withAlphaComponent(0.1).cgColor]
+        gradientLayer.colors = [UIColor.white.withAlphaComponent(0.0).cgColor, UIColor.white.withAlphaComponent(0.4).cgColor, UIColor.black.withAlphaComponent(0.6).cgColor]
         gradientLayer.startPoint = CGPoint(x: 0, y: 0)
         gradientLayer.endPoint = CGPoint(x: 0, y: 1)
         self.layer.insertSublayer(gradientLayer, at: 0)
